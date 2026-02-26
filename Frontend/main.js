@@ -1383,6 +1383,7 @@ if (!insightEl) {
           state.evaluations.unshift(evalDbToUi(data));
           displayEvaluations();
           updateDashboard();
+          updateDisputeBadge();
         } catch (err) {
           console.error("[evaluations] create error (local fallback):", err);
           state.evaluations.unshift({
@@ -1391,6 +1392,7 @@ if (!insightEl) {
           });
           displayEvaluations();
           updateDashboard();
+          updateDisputeBadge();   
           toast("Server save failed; saved locally for now.");
         }
       }
