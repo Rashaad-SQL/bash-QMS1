@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Inter font (enterprise look) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- correct EmailJS browser SDK (not emailjs-com) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <meta charset="utf-8" />
+    <title>Bash CS QA System</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<link rel="stylesheet" href="./Frontend/styles.css">
+<link rel="stylesheet" href="./Frontend/presentation.css">
+
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- ===== Sidebar ===== -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo"></div>
+          <div class="brand-title">BASH</div>
+          <span class="brand-badge"></span>
+        </div>
+
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path
+              fill="#9CA3AF"
+              d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16a6.471 6.471 0 004.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+            />
+          </svg>
+          <input placeholder="Search" />
+        </div>
+
+        <div class="section-head">Quality Assurance</div>
+        <nav class="nav">
+          <div class="tab" data-tab="dashboard">Dashboard</div>
+          <div class="tab active" data-tab="form">New Evaluation</div>
+          <div class="tab" data-tab="list">Completed Evaluations</div>
+          <div class="tab" data-tab="agents">Agents</div>
+
+          <div class="tab" data-tab="disputes">
+            Disputes
+            <span id="dispute-badge" class="badge" style="display: none"
+              >0</span
+            >
+          </div>
+          <div class="tab" data-tab="settings">Settings</div>
+        </nav>
+
+        <div class="brandwrap"></div>
+      </aside>
+
+      <!-- ===== Main ===== -->
+      <main>
+        <div class="hero">
+          <div>
+            <h1>Bash Support Quality Overview</h1>
+<p>
+  Real-time visibility into evaluation performance, risk indicators,
+  and coaching focus areas.
+</p>
+          </div>
+          <div style="opacity: 0.9">
+            <svg width="140" height="90" viewBox="0 0 140 90" fill="none">
+              <rect
+                x="5"
+                y="20"
+                width="50"
+                height="60"
+                rx="10"
+                fill="#EEF2FF"
+                stroke="#D9E0FF"
+              />
+              <rect
+                x="65"
+                y="10"
+                width="70"
+                height="70"
+                rx="12"
+                fill="#EEF2FF"
+                stroke="#D9E0FF"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <!-- ===== FORM TAB ===== -->
+          <div id="form-tab" class="tab-content">
+            <form id="evaluation-form" novalidate>
+              <div class="grid-two">
+                <div>
+                  <div class="card">
+                    <div class="card-b">
+                      <label for="agent-select">Agent:</label>
+                      <select id="agent-select" required>
+                        <option value="">Select an Agent</option>
+                      </select>
+
+                      <div
+                        style="
+                          display: flex;
+                          gap: 12px;
+                          flex-wrap: wrap;
+                          margin-top: 8px;
+                        "
+                      >
+                        <div style="flex: 1 1 240px">
+                          <label for="ticket-number">Ticket number:</label>
+                          <div
+                            style="
+                              display: flex;
+                              gap: 8px;
+                              align-items: flex-end;
+                            "
+                          >
+                            <input type="text" id="ticket-number" required />
+                            <button
+                              type="button"
+                              class="ghost"
+                              id="btn-load-ticket"
+                              style="height: 48px"
+                            >
+                              Load Ticket
+                            </button>
+                          </div>
+                        </div>
+                        <div style="flex: 1 1 200px">
+                          <label for="channel">Channel:</label>
+                          <select id="channel" required>
+                            <option value="">Select Type</option>
+                            <option value="call">Calls</option>
+                            <option value="chat">Chat</option>
+                            <option value="email">Email</option>
+                          </select>
+                        </div>
+                        <div style="flex: 1 1 200px">
+                          <label for="date">Date of Evaluation:</label>
+                          <input type="date" id="date" required />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    id="ticket-view"
+                    class="card"
+                    style="margin-top: 12px; display: none"
+                  >
+                    <div class="card-h">Ticket Preview</div>
+                    <div class="card-b" id="ticket-content">
+                      <div class="hint">Use “Load Ticket” to preview.</div>
+                    </div>
+                  </div>
+
+                  <div id="autofail-message" class="autofail">
+                    This evaluation has automatically failed due to a
+                    compliance/process failure.
+                  </div>
+
+                  <!-- === CHECKLIST === -->
+                  <div class="card" style="margin-top: 12px">
+                    <div class="card-h">Quality Checklist</div>
+                    <div class="card-b">
+                      <!-- Critical -->
+                      <div class="section" data-section="critical">
+                        <div class="section-h">
+                          <span class="section-title">Compliance/Process</span
+                          ><span class="badge crit">Critical</span>
+                        </div>
+                        <div class="section-c">
+                          <div class="item critical" data-section="critical">
+                            <div class="q">
+                              Has the agent verified the customer?
+                              <span class="meta">(0 points)</span>
+                              <span class="badge crit">Auto-Fail</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="verification"
+                                data-weight="0"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="verification"
+                                data-weight="0"
+                              >
+                                No
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Add context or evidence..."
+                              ></textarea>
+                              <div class="hint">
+                                Tip: paste case links or policy refs when
+                                relevant.
+                              </div>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item critical" data-section="critical">
+                            <div class="q">
+                              Has the agent adhered to the data protection
+                              process? <span class="meta">(0 points)</span>
+                              <span class="badge crit">Auto-Fail</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="data-protection"
+                                data-weight="0"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="data-protection"
+                                data-weight="0"
+                              >
+                                No
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Add context or evidence..."
+                              ></textarea>
+                              <div class="hint">
+                                Tip: specify which step failed and why.
+                              </div>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item critical" data-section="critical">
+                            <div class="q">
+                              Has the agent followed the correct process?
+                              <span class="meta">(0 points)</span>
+                              <span class="badge crit">Auto-Fail</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="process"
+                                data-weight="0"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="process"
+                                data-weight="0"
+                              >
+                                No
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Add context or evidence..."
+                              ></textarea>
+                              <div class="hint">
+                                Tip: outline expected vs observed steps.
+                              </div>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="section-summary"
+                            style="
+                              padding: 8px 0;
+                              color: var(--muted);
+                              font-weight: 700;
+                            "
+                          >
+                            Status:
+                            <span class="section-score" data-section="critical"
+                              >Not Started</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Investigation -->
+                      <div class="section" data-section="investigation">
+                        <div class="section-h">
+                          <span class="section-title">Investigation</span>
+                        </div>
+                        <div class="section-c">
+                          <div class="item" data-section="investigation">
+                            <div class="q">
+                              Has the agent conducted a full investigation?
+                              <span class="meta">(7 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="investigation"
+                                data-weight="7"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="investigation"
+                                data-weight="7"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="investigation"
+                                data-weight="7"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", explain investigation gaps...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="investigation">
+                            <div class="q">
+                              Has the agent shown a strong understanding of the
+                              company's policies and procedures?
+                              <span class="meta">(6 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="policies"
+                                data-weight="6"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="policies"
+                                data-weight="6"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="policies"
+                                data-weight="6"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", note policy misunderstanding...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="investigation">
+                            <div class="q">
+                              FCR - Investigation
+                              <span class="meta">(7 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="fcr-investigation"
+                                data-weight="7"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="fcr-investigation"
+                                data-weight="7"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="fcr-investigation"
+                                data-weight="7"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", why no first contact resolution?'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="section-summary">
+                            Section Score:
+                            <span
+                              class="section-score"
+                              data-section="investigation"
+                              >0/20</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Communication -->
+                      <div class="section" data-section="communication">
+                        <div class="section-h">
+                          <span class="section-title"
+                            >Communication Skills</span
+                          >
+                        </div>
+                        <div class="section-c">
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Greeting &amp; Sign-off
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="greeting"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="greeting"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="greeting"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", specify what was missing...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Positive open <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="positive-open"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="positive-open"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="positive-open"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", why not?'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Appropriate closing
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="appropriate-closing"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="appropriate-closing"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="appropriate-closing"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", what should have been used?'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Tone of voice <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="tone"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="tone"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="tone"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", specify examples...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Use of appropriate emojis
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="emojis"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="emojis"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="emojis"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", give examples or policy...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Grammatical / Spelling errors
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="grammar"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="grammar"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="grammar"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", cite examples...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Has the agent addressed the issue?
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="issue-addressed"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="issue-addressed"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="issue-addressed"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", detail the gap...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="item" data-section="communication">
+                            <div class="q">
+                              Additional relevant information provided
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="additional-info"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="additional-info"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="additional-info"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", what was missing?'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="section-summary">
+                            Section Score:
+                            <span
+                              class="section-score"
+                              data-section="communication"
+                              >0/40</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Company Values -->
+                      <div class="section" data-section="company-values">
+                        <div class="section-h">
+                          <span class="section-title">Company Values</span>
+                        </div>
+                        <div class="section-c">
+                          <div class="item" data-section="company-values">
+                            <div class="q">
+                              Was the agent Bold &amp; Accountable?
+                              <span class="meta">(10 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="bold-accountable"
+                                data-weight="10"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="bold-accountable"
+                                data-weight="10"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="bold-accountable"
+                                data-weight="10"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", give examples...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="company-values">
+                            <div class="q">
+                              Was the agent Simple &amp; Human?
+                              <span class="meta">(10 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="simple-human"
+                                data-weight="10"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="simple-human"
+                                data-weight="10"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="simple-human"
+                                data-weight="10"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder='If "No", explain...'
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="section-summary">
+                            Section Score:
+                            <span
+                              class="section-score"
+                              data-section="company-values"
+                              >0/20</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Wrap-up & Properties -->
+                      <div class="section" data-section="wrap-up-properties">
+                        <div class="section-h">
+                          <span class="section-title"
+                            >Wrap-up &amp; Properties</span
+                          >
+                        </div>
+                        <div class="section-c">
+                          <div class="item" data-section="wrap-up-properties">
+                            <div class="q">
+                              Were the contact details correctly updated?
+                              <span class="meta">(2 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="custom-1"
+                                data-weight="2"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="custom-1"
+                                data-weight="2"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="custom-1"
+                                data-weight="2"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Notes..."
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="wrap-up-properties">
+                            <div class="q">
+                              Were the correct properties added?
+                              <span class="meta">(8 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="custom-2"
+                                data-weight="8"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="custom-2"
+                                data-weight="8"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="custom-2"
+                                data-weight="8"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Notes..."
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="wrap-up-properties">
+                            <div class="q">
+                              Was the correct status set?
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="custom-3"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="custom-3"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="custom-3"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Notes..."
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="item" data-section="wrap-up-properties">
+                            <div class="q">
+                              Were the correct notes added?
+                              <span class="meta">(5 points)</span>
+                            </div>
+                            <div class="yn">
+                              <button
+                                type="button"
+                                class="btn yes"
+                                data-criterion="custom-4"
+                                data-weight="5"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                class="btn no"
+                                data-criterion="custom-4"
+                                data-weight="5"
+                              >
+                                No
+                              </button>
+                              <button
+                                type="button"
+                                class="btn na"
+                                data-criterion="custom-4"
+                                data-weight="5"
+                              >
+                                N/A
+                              </button>
+                            </div>
+                            <div class="cwrap">
+                              <textarea
+                                class="comments"
+                                rows="2"
+                                placeholder="Notes..."
+                              ></textarea>
+                              <div class="cerr">
+                                Comment is required when selecting No.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="section-summary">
+                            Section Score:
+                            <span
+                              class="section-score"
+                              data-section="wrap-up-properties"
+                              >0/0</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <label for="overall-comments" style="margin-top: 14px"
+                        >Overall Comments:</label
+                      >
+                      <textarea
+                        id="overall-comments"
+                        rows="3"
+                        placeholder="Summary, coaching, and action items..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Rail -->
+                <div class="rail">
+                  <div class="card">
+                    <div class="card-h">Status</div>
+                    <div class="card-b">
+                      <div class="scorebig">
+                        <span id="current-score">0</span>/<span id="max-score"
+                          >100</span
+                        >
+                      </div>
+                      <div style="margin-top: 6px">
+                        <span id="pass-fail-indicator" class="pf fail"
+                          >FAIL</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          display: flex;
+                          gap: 8px;
+                          flex-wrap: wrap;
+                          margin-top: 10px;
+                        "
+                      >
+                        <span class="chip" id="chip-unanswered"
+                          >Unanswered: 0</span
+                        >
+                        <span class="chip bad" id="chip-missing-comments"
+                          >"No" w/o comment: 0</span
+                        >
+                        <span class="chip" id="chip-no-count"
+                          >Total "No": 0</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card" style="margin-top: 12px">
+                    <div class="card-h">Actions</div>
+                    <div
+                      class="card-b"
+                      style="display: flex; gap: 8px; flex-wrap: wrap"
+                    >
+                      <button
+                        type="button"
+                        class="ghost"
+                        id="btn-mark-calibration"
+                      >
+                        Mark for calibration
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sticky footer -->
+              <div class="foot">
+                <button type="button" class="ghost" id="btn-next">
+                  Next incomplete →
+                </button>
+                <button
+                  type="submit"
+                  class="primary"
+                  id="submit-evaluation"
+                  disabled
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- LIST TAB -->
+          <div id="list-tab" class="tab-content" style="display: none">
+            <div class="card">
+              <div class="card-h">
+                Completed Evaluations
+                <button id="export-csv" class="ghost" style="float: right">
+                  Export CSV
+                </button>
+              </div>
+              <div class="card-b">
+                <div id="evaluations-list" class="stack"></div>
+                <p id="no-evaluations" class="hint">No evaluations yet.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DISPUTES TAB -->
+          <div id="disputes-tab" class="tab-content" style="display: none">
+            <div class="card">
+              <div class="card-h">Disputes Queue</div>
+              <div class="card-b">
+                <div id="disputes-list" class="stack"></div>
+                <p id="no-disputes" class="hint">No open disputes 🎉</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DASHBOARD TAB -->
+          <div id="dashboard-tab" class="tab-content" style="display: none">
+            <div class="dashwrap">
+              <div class="dashhead">
+                <h2
+                  style="margin: 0 0 12px 0; font-size: 28px; font-weight: 900"
+                >
+                  </h2>
+              </div>
+              <div class="widgetgrid">
+                     
+                <!-- Donut: Avg Quality -->
+                <div class="widget span-3">
+                  <div class="wh">QA Average</div>
+                  <div class="wb">
+                    <div class="donut" id="donut-avg">
+                      <div class="hole"><span id="avg-score">0%</span></div>
+                    </div>
+                    <div class="smallnote" style="text-align: center">
+                      Avg score
+                    </div>
+                  </div>
+                </div>
+
+                  <!-- Donut: Pass Rate -->
+                <div class="widget span-3">
+                  <div class="wh">Pass Rate</div>
+                  <div class="wb">
+                    <div class="donut" id="donut-pass">
+                      <div class="hole"><span id="pass-rate">0%</span></div>
+                    </div>
+                    <div class="smallnote" style="text-align: center">
+                      <span id="pass-count">0</span> passed
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KPI: Evaluations -->
+                <div class="widget span-3">
+                  <div class="wh">Total Evaluations</div>
+                  <div class="wb kpi">
+                    <div class="big" id="kpi-evals">0</div>
+                  
+                  </div>
+                </div>
+
+                <!-- Donut: Auto-fails -->
+                <div class="widget span-3">
+                  <div class="wh">Auto-Fails</div>
+                  <div class="wb">
+                    <div class="donut" id="donut-auto">
+                      <div class="hole"><span id="auto-rate">0%</span></div>
+                    </div>
+                    <div class="smallnote" style="text-align: center">
+                      <span id="auto-count">0</span> auto-failed
+                    </div>
+                  </div>
+                </div>
+
+                <div class="widget span-12 performance-insight">
+  <div class="wb">
+    <span id="performance-summary-text">—</span>
+  </div>
+</div>
+
+          
+                <!-- Table: Coaching focus areas -->
+                <div class="widget span-7">
+                  <div class="wh">Coaching focus areas</div>
+                  <div class="wb">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Coaching focus areas</th>
+                          <th>Count</th>
+                          <th>% Pass</th>
+                        </tr>
+                      </thead>
+                      <tbody id="line-items">
+                        <tr>
+                          <td colspan="3" class="smallnote">No data yet.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Recent Evaluations -->
+                <div class="widget span-5">
+                  <div class="wh">Recent Evaluations</div>
+                  <div class="wb" id="recent-evaluations">
+                    <p class="smallnote">No evaluations yet.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AGENTS TAB -->
+          <div id="agents-tab" class="tab-content" style="display: none">
+            <div class="card">
+              <div class="card-h">Agent Management</div>
+              <div class="card-b">
+                <form
+                  id="agent-form"
+                  style="display: grid; gap: 8px; max-width: 520px"
+                >
+                  <div>
+                    <label for="new-agent-name">Agent Name</label
+                    ><input type="text" id="new-agent-name" required />
+                  </div>
+                  <div>
+                    <label for="new-agent-email">Email</label
+                    ><input type="email" id="new-agent-email" required />
+                  </div>
+                  <div>
+                    <label for="new-agent-team">Team</label
+                    ><input type="text" id="new-agent-team" required />
+                  </div>
+                  <div>
+                    <label for="new-agent-position">Position</label
+                    ><input type="text" id="new-agent-position" required />
+                  </div>
+                  <button
+                    type="submit"
+                    class="primary"
+                    style="width: max-content"
+                  >
+                    Add Agent
+                  </button>
+                </form>
+                <div style="height: 12px"></div>
+                <div id="agents-list" class="stack"></div>
+                <p id="no-agents" class="hint">No agents added yet.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SETTINGS TAB -->
+          <div id="settings-tab" class="tab-content" style="display: none">
+            <div class="card">
+              <div class="card-h">System Settings</div>
+              <div class="card-b">
+                <div class="card" style="box-shadow: none; margin-bottom: 12px">
+                  <div class="card-b">
+                    <h4 style="margin: 0 0 8px 0">Notification Settings</h4>
+                    <p>Configure email notifications for new evaluations.</p>
+                    <label for="team-lead-email">Team Lead Email</label>
+                    <input
+                      type="email"
+                      id="team-lead-email"
+                      placeholder="manager@bash.com"
+                    />
+                    <div style="margin-top: 10px">
+                      <label
+                        style="display: flex; gap: 8px; align-items: center"
+                      >
+                        <span>Also notify agents when they're evaluated</span>
+                        <input type="checkbox" id="notify-agents" />
+                      </label>
+                    </div>
+                    <button
+                      id="save-notification-settings"
+                      class="primary"
+                      style="margin-top: 10px"
+                    >
+                      Save Notification Settings
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card" style="box-shadow: none; margin-bottom: 12px">
+                  <div class="card-b">
+                    <h4 style="margin: 0 0 8px 0">Data Backup</h4>
+                    <p>Export all your QMS data to a file for safekeeping.</p>
+                    <button id="backup-data" class="ghost">
+                      Backup All Data
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card" style="box-shadow: none; margin-bottom: 12px">
+                  <div class="card-b">
+                    <h4 style="margin: 0 0 8px 0">Restore Data</h4>
+                    <p>Restore your QMS data from a backup file.</p>
+                    <input type="file" id="restore-file" accept=".json" />
+                    <button id="restore-data" class="ghost">
+                      Restore Data
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card" style="box-shadow: none">
+                  <div class="card-b">
+                    <h4 style="margin: 0 0 8px 0">Reset System</h4>
+                    <p>Warning: This will delete all evaluations and agents.</p>
+                    <button
+                      id="reset-system"
+                      class="ghost"
+                      style="background: #fff1f1; border-color: #ffd1d1"
+                    >
+                      Reset System
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /wrap -->
+      </main>
+    </div>
+    <!-- /app -->
+
+    <!-- Simple Modals -->
+    <div class="backdrop" id="dispute-backdrop">
+      <div class="card" style="max-width: 620px; width: 95%">
+        <div class="card-h">Open Dispute</div>
+        <div class="card-b">
+          Agents can submit a dispute after an evaluation is saved. Open
+          "Completed Evaluations" and click "Dispute" on the card.
+        </div>
+        <div class="card-b" style="display: flex; justify-content: flex-end">
+          <button class="ghost" id="close-dispute">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="backdrop" id="eval-dispute-backdrop">
+      <div class="card" style="max-width: 620px; width: 95%">
+        <div class="card-h">Dispute Evaluation</div>
+
+        <div class="card-b">
+          <label>Which question(s) are you disputing?</label>
+          <div id="dispute-criteria-list" class="stack"></div>
+
+          <label for="dispute-reason" style="margin-top: 12px">Reason</label>
+          <textarea
+            id="dispute-reason"
+            placeholder="Explain why these should be reviewed"
+          ></textarea>
+        </div>
+
+        <div
+          class="card-b"
+          style="display: flex; gap: 8px; justify-content: flex-end"
+        >
+          <button class="ghost" id="cancel-eval-dispute">Cancel</button>
+          <button class="primary" id="save-eval-dispute">Submit Dispute</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="backdrop" id="cal-backdrop">
+      <div class="card" style="max-width: 620px; width: 95%">
+        <div class="card-h">Mark for Calibration</div>
+        <div class="card-b">
+          <label for="cal-reviewers">Add reviewers (comma separated)</label
+          ><input
+            type="text"
+            id="cal-reviewers"
+            placeholder="alex@bash.com, sam@bash.com"
+          />
+        </div>
+        <div
+          class="card-b"
+          style="display: flex; gap: 8px; justify-content: flex-end"
+        >
+          <button class="ghost" id="cal-cancel">Cancel</button
+          ><button class="primary" id="cal-save">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="./Frontend/main.js"></script>
+  </body>
+</html>
